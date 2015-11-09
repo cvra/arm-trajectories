@@ -1,6 +1,8 @@
 Marvin's Appendix
 =================
+Basic trajectories.
 
+# Create a navigable trajectory in time domain throught a set of points in euclidian space
 - Create trajectory (series of arbitrary points) in euclidian space
 - Transform trajectory to actuator space
 - Interpolate transformed trajectory with splines (you need the first two derivatives as well)
