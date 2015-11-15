@@ -79,6 +79,7 @@ class SplineTrajectoryPoint():
         self.distance = distance
         self.parametrization = spline.parametrization_at_distance(distance)
         self.position = self.spline.spline(self.parametrization)
+        self.direction = self.spline.spline_dot(self.parametrization)
 
     def __repr__(self):
         return str(self.position)
