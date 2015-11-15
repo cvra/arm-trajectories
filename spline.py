@@ -4,7 +4,6 @@ import scipy as sc
 from scipy.integrate import quad
 from scipy.optimize import newton
 
-
 def _parameter_generator():
     a, b, c, d = sp.symbols('a b c d')
     t = sp.symbols('t')
@@ -48,8 +47,8 @@ class SplineTrajectorySegment():
 
         distance = np.linalg.norm(self.end_point - self.start_point)
 
-        self.start_dir *= roundness / distance
-        self.end_dir *= roundness / distance
+        self.start_dir *= roundness * distance
+        self.end_dir *= roundness * distance
 
         self.parameters = [generate_spline(*conditions) for conditions in
                            zip(start_pt, end_pt, self.start_dir, self.end_dir)]
@@ -57,7 +56,7 @@ class SplineTrajectorySegment():
         self._spline = [_spline_generator(p) for p in self.parameters]
         self._spline_dot = [_spline_dot_generator(p) for p in self.parameters]
         self._spline_dot_dot = [_spline_dot_dot_generator(p)
-                               for p in self.parameters]
+                                for p in self.parameters]
         self.spline_length = self.section_length(0, 1)
 
     def spline(self, t):
@@ -70,12 +69,23 @@ class SplineTrajectorySegment():
         ''' Evaluates the length of the spline from a to b. '''
         return quad(lambda t: np.linalg.norm(self.spline_dot(t)), a, b)[0]
 
-    def parametrization_at_length(self, s):
+    def parametrization_at_distance(self, s):
         return newton(lambda t: self.section_length(0, t) - s, 0.5)
 
 
+class SplineTrajectoryPoint():
+    def __init__(self, spline, distance):
+        self.spline = spline
+        self.distance = distance
+        self.parametrization = spline.parametrization_at_distance(distance)
+        self.position = self.spline.spline(self.parametrization)
+
+    def __repr__(self):
+        return str(self.position)
+
+
 class SplineTrajectory():
-    def __init__(self, points, start_dir=None, end_dir=None):
+    def __init__(self, points, start_dir=None, end_dir=None, roundness=0.1):
         if start_dir is None:
             start_dir = points[1] - points[0]
 
@@ -87,7 +97,7 @@ class SplineTrajectory():
 
         directions = [start_dir] + directions + [end_dir]
 
-        self.splines = [SplineTrajectorySegment(start, end, start_dir, end_dir)
+        self.splines = [SplineTrajectorySegment(start, end, start_dir, end_dir, roundness)
                         for start, end, start_dir, end_dir
                         in zip(points, points[1:], directions, directions[1:])]
 
@@ -102,3 +112,18 @@ class SplineTrajectory():
         direction = (v1 / v1_norm**2 + v2 / v2_norm**2)
 
         return direction / np.linalg.norm(direction)
+
+    def sample_at_distance(self, distance):
+        traj_distance = 0
+        for spline in self.splines:
+            if distance <= traj_distance + spline.spline_length:
+                return SplineTrajectoryPoint(spline, distance - traj_distance)
+            traj_distance += spline.spline_length
+
+        return SplineTrajectoryPoint(self.splines[-1],
+                                     self.splines[-1].spline_length)
+
+    def get_sample_points(self, resolution):
+        traj_length = sum([s.spline_length for s in self.splines])
+        n = round(traj_length / resolution)
+        return [self.sample_at_distance(d) for d in np.linspace(0, traj_length, n)]

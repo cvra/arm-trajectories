@@ -32,9 +32,9 @@ class SplineTest(unittest.TestCase):
         sab = trajectory.section_length(0, 1)
         self.assertAlmostEqual(sa + sb, sab)
 
-    def test_parametrization_at_length(self):
+    def test_parametrization_at_distance(self):
         trajectory = spline.SplineTrajectorySegment([0, 1, 2], [-1, -2, -3], [1, 1, 1], [1, 1, 1])
-        r = trajectory.parametrization_at_length(trajectory.spline_length / 3)
+        r = trajectory.parametrization_at_distance(trajectory.spline_length / 3)
         length = trajectory.section_length(0, r)
         self.assertAlmostEqual(trajectory.spline_length / 3, length)
 
