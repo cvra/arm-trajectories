@@ -1,0 +1,92 @@
+\documentclass[11pt,onecolumn,a4paper,oneside,openright,final]{article}
+
+\begin{document}
+
+We have a spline $\mathbf{s}\left( r \right)$ which we reparametrize to $\mathbf{s}\left( r \left( \sigma \right) \right)$ such that $\left| \left| \frac{\partial \mathbf{s}}{\partial \sigma} \right| \right| = 1$.
+
+Derivative in respect to time:
+
+\begin{equation}
+    \frac{\partial}{\partial t} \mathbf{s} \left( \sigma \left( t \right) \right) =
+    \frac{\partial \mathbf{s}}{\partial \sigma} \frac{\partial \sigma}{\partial t} 
+    \label{equ:s_dot}
+\end{equation}
+
+\begin{equation}
+    \frac{\partial^2}{\partial t^2} \mathbf{s} \left( \sigma \left( t \right) \right) =
+    \frac{\partial^2 \mathbf{s}}{\partial \sigma^2} \frac{\partial \sigma}{\partial t} +
+    \frac{\partial \mathbf{s}}{\partial \sigma} \frac{\partial^2 \sigma}{\partial t^2} 
+    \label{equ:s_dot_dot}
+\end{equation}
+
+We know everything except $\frac{\partial^2 \mathbf{s}}{\partial \sigma^2}$.
+
+\begin{equation}
+    \frac{\partial}{\partial \sigma} \mathbf{s} \left( r \left( \sigma \right) \right) =
+    \frac{\partial \mathbf{s}}{\partial r} \frac{\partial r}{\partial \sigma}
+    \textrm{ with }
+    \left| \left| \frac{\partial}{\partial \sigma} \mathbf{s} \left( r \left( \sigma \right) \right) \right| \right| = 1
+    \label{equ:s_d_sigma}
+\end{equation}
+
+\begin{equation}
+    \frac{\partial^2}{\partial \sigma^2} \mathbf{s} \left( r \left( \sigma \right) \right) =
+    \frac{\partial^2 \mathbf{s}}{\partial r^2} \frac{\partial r}{\partial \sigma} +
+    \frac{\partial \mathbf{s}}{\partial r} \frac{\partial^2 r}{\partial \sigma^2} 
+    \label{equ:s_dd_sigma}
+\end{equation}
+
+We know everything except $\frac{\partial^2 r}{\partial \sigma^2}$. Because we don't accelerate along the spline (see equation~\ref{equ:s_d_sigma}), we can say that
+
+\begin{equation}
+    \frac{\partial \mathbf{s}}{\partial \sigma} \bullet \frac{\partial^2 \mathbf{s}}{\partial \sigma^2} = 0
+    \label{equ:perpendicular}
+\end{equation}
+
+which implies that the acceleration is perpendicular to the velocity.
+
+\begin{equation}
+    \frac{\partial \mathbf{s}}{\partial \sigma} \bullet \frac{\partial^2 \mathbf{s}}{\partial \sigma^2} =
+    \left(
+    \frac{\partial \mathbf{s}}{\partial r} \frac{\partial r}{\partial \sigma}
+    \right) \bullet \left(
+    \frac{\partial^2 \mathbf{s}}{\partial r^2} \frac{\partial r}{\partial \sigma} +
+    \frac{\partial \mathbf{s}}{\partial r} \frac{\partial^2 r}{\partial \sigma^2} 
+    \right)
+    \label{equ:perpendicular_1}
+\end{equation}
+
+\begin{equation}
+    =
+    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right) {\left( \frac{\partial r}{\partial \sigma} \right)}^2
+    + {\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}^2 \frac{\partial r}{\partial \sigma} \frac{\partial^2 r}{\partial \sigma^2}
+    \label{equ:perpendicular_2}
+\end{equation}
+
+with (\ref{equ:s_d_sigma}) we can simplify to
+
+\begin{equation}
+    =
+    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right) {\left( \frac{\partial r}{\partial \sigma} \right)}^2
+    + {\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|} \frac{\partial^2 r}{\partial \sigma^2}
+    \label{equ:perpendicular_3}
+\end{equation}
+
+Solving for $\frac{\partial^2 r}{\partial \sigma^2}$:
+
+\begin{equation}
+    \frac{\partial^2 r}{\partial \sigma^2} =
+    \frac{1}{\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}
+    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right) {\left( \frac{\partial r}{\partial \sigma} \right)}^2
+    \label{equ:r_dd_sigma_1}
+\end{equation}
+
+Again with (\ref{equ:s_d_sigma}) we can simplify to
+
+\begin{equation}
+    \frac{\partial^2 r}{\partial \sigma^2} =
+    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right) {\left( \frac{\partial r}{\partial \sigma} \right)}^3
+    \label{equ:r_dd_sigma_2}
+\end{equation}
+
+\end{document}
