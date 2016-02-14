@@ -1,8 +1,19 @@
 \documentclass[11pt,onecolumn,a4paper,oneside,openright,final]{article}
+\usepackage{amsmath}
+\setlength{\parindent}{0pt}
 
 \begin{document}
 
 We have a spline $\mathbf{s}\left( r \right)$ which we reparametrize to $\mathbf{s}\left( r \left( \sigma \right) \right)$ such that $\left| \left| \frac{\partial \mathbf{s}}{\partial \sigma} \right| \right| = 1$.
+We're interested in calculating the maximal possible speed along the spline.
+
+The reparametrization is being done by solving the integral (\ref{equ:reparam_int}) for $r$.
+\begin{equation}
+    \sigma \left( r \right) = \int_0^r{\left| \left| \dot{\mathbf{s}} \left( \xi \right) \right| \right| d\xi}    
+    \label{equ:reparam_int}
+\end{equation}
+This has to be done numerically.
+
 
 Derivative in respect to time:
 
@@ -19,8 +30,24 @@ Derivative in respect to time:
     \label{equ:s_dot_dot}
 \end{equation}
 
-We know everything except $\frac{\partial^2 \mathbf{s}}{\partial \sigma^2}$.
+We consider the case of no acceleration along the reparametrization ($\frac{\partial^2 \sigma}{\partial t^2} = 0$) to calculate the highes possible speed at that point.
+Thus we end up with
+\begin{equation}
+    \frac{\partial^2}{\partial t^2} \mathbf{s} \left( \sigma \left( t \right) \right) =
+    \frac{\partial^2 \mathbf{s}}{\partial \sigma^2} \frac{\partial \sigma}{\partial t}
+    \label{equ:s_dot_dot_no_acc}
+\end{equation}
 
+Considering that we want the maximal rate at which we can change $\sigma$ over time without having higher accelerations than each actuator can handle, we get
+\begin{equation}
+    \frac{\partial \sigma}{\partial t} =
+    \min_i{\frac{a_{\max,i}}{\left|\frac{\partial^2 s_i}{\partial \sigma^2}\right|}}
+    \label{equ:max_speed}
+\end{equation}
+
+The value of $\frac{\partial^2 \mathbf{s}}{\partial \sigma^2}$ has still to be calculated.
+
+The derivative of the spline in respect to the reparametrization $\sigma$:
 \begin{equation}
     \frac{\partial}{\partial \sigma} \mathbf{s} \left( r \left( \sigma \right) \right) =
     \frac{\partial \mathbf{s}}{\partial r} \frac{\partial r}{\partial \sigma}
@@ -29,12 +56,41 @@ We know everything except $\frac{\partial^2 \mathbf{s}}{\partial \sigma^2}$.
     \label{equ:s_d_sigma}
 \end{equation}
 
+Further,
+\begin{equation}
+    \left| \left| \frac{\partial \mathbf{s}}{\partial r} \frac{\partial r}{\partial \sigma} \right| \right| = 
+    \left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right| \cdot \left| \frac{\partial r}{\partial \sigma} \right| = 1
+    \label{equ:s_d_sigma_cont}
+\end{equation}
+
+\begin{equation}
+    \left| \frac{\partial r}{\partial \sigma} \right| =
+    \frac{1}{\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}
+    \label{equ:s_d_sigma_cont_2}
+\end{equation}
+
+
+The second derivative:
 \begin{equation}
     \frac{\partial^2}{\partial \sigma^2} \mathbf{s} \left( r \left( \sigma \right) \right) =
     \frac{\partial^2 \mathbf{s}}{\partial r^2} \frac{\partial r}{\partial \sigma} +
     \frac{\partial \mathbf{s}}{\partial r} \frac{\partial^2 r}{\partial \sigma^2} 
     \label{equ:s_dd_sigma}
 \end{equation}
+
+From (\ref{equ:reparam_int}) we get
+\begin{equation}
+    \frac{d \sigma}{d r} = \left| \left| \dot{\mathbf{s}} \left( r \right) \right| \right|
+    \label{equ:d_sigma_d_r}
+\end{equation}
+
+which leads to
+
+\begin{equation}
+    \frac{d r}{d \sigma} = \frac{1}{\left| \left| \dot{\mathbf{s}} \left( r \right) \right| \right|}
+    \label{equ:d_r_d_sigma}
+\end{equation}
+and is consistent with (\ref{equ:s_d_sigma_cont_2}).
 
 We know everything except $\frac{\partial^2 r}{\partial \sigma^2}$. Because we don't accelerate along the spline (see equation~\ref{equ:s_d_sigma}), we can say that
 
@@ -57,36 +113,58 @@ which implies that the acceleration is perpendicular to the velocity.
 \end{equation}
 
 \begin{equation}
-    =
+    0 =
     \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right) {\left( \frac{\partial r}{\partial \sigma} \right)}^2
-    + {\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}^2 \frac{\partial r}{\partial \sigma} \frac{\partial^2 r}{\partial \sigma^2}
+    + {\left( \frac{\partial \mathbf{s}}{\partial r} \right)}^2 \frac{\partial r}{\partial \sigma} \frac{\partial^2 r}{\partial \sigma^2}
     \label{equ:perpendicular_2}
 \end{equation}
 
-with (\ref{equ:s_d_sigma}) we can simplify to
+with (\ref{equ:s_d_sigma}) and (\ref{equ:s_d_sigma_cont_2}) we can simplify to
 
 \begin{equation}
-    =
-    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right) {\left( \frac{\partial r}{\partial \sigma} \right)}^2
+    0 =
+    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right)
+    \frac{1}{{\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}^2}
     + {\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|} \frac{\partial^2 r}{\partial \sigma^2}
     \label{equ:perpendicular_3}
 \end{equation}
+
+because ${\left( \frac{\partial \mathbf{s}}{\partial r} \right)}^2 \frac{\partial r}{\partial \sigma}  = \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial \mathbf{s}}{\partial r} \frac{\partial r}{\partial \sigma}$
+and $\frac{\partial \mathbf{s}}{\partial r} \frac{\partial r}{\partial \sigma}$ is a vector of magnitude $1$ in the same direction as $\frac{\partial \mathbf{s}}{\partial r}$.
 
 Solving for $\frac{\partial^2 r}{\partial \sigma^2}$:
 
 \begin{equation}
     \frac{\partial^2 r}{\partial \sigma^2} =
-    \frac{1}{\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}
-    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right) {\left( \frac{\partial r}{\partial \sigma} \right)}^2
+    - \frac{1}{{\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}^3}
+    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right)
     \label{equ:r_dd_sigma_1}
 \end{equation}
 
-Again with (\ref{equ:s_d_sigma}) we can simplify to
+$ \frac{\partial\mathbf{s}}{\partial r} $ is free lunch as well as $ \frac{\partial^2 \mathbf{s}}{\partial r^2} $.
+
+Putting (\ref{equ:r_dd_sigma_1}) in (\ref{equ:s_dd_sigma}) we get
 
 \begin{equation}
-    \frac{\partial^2 r}{\partial \sigma^2} =
-    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right) {\left( \frac{\partial r}{\partial \sigma} \right)}^3
-    \label{equ:r_dd_sigma_2}
+    \frac{\partial^2}{\partial \sigma^2} \mathbf{s} \left( r \left( \sigma \right) \right) =
+    \frac{\partial^2 \mathbf{s}}{\partial r^2} \cdot {\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}^{-1} -
+    \frac{\partial \mathbf{s}}{\partial r} 
+    \left( \frac{\partial \mathbf{s}}{\partial r} \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right)
+    {\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}^{-3} 
+    \label{equ:s_dd_sigma}
 \end{equation}
+
+\begin{equation}
+    \frac{\partial^2}{\partial \sigma^2} \mathbf{s} \left( r \left( \sigma \right) \right) =
+    {\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}^{-1}
+    \left(\frac{\partial^2 \mathbf{s}}{\partial r^2} -
+    \underbrace{\frac{\frac{\partial \mathbf{s}}{\partial r}}{{\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}}
+    \left( \frac{\frac{\partial \mathbf{s}}{\partial r}}{{\left| \left| \frac{\partial \mathbf{s}}{\partial r} \right| \right|}}
+    \bullet \frac{\partial^2 \mathbf{s}}{\partial r^2} \right)}_\text{acc. along the spline}
+    \right)
+    \label{equ:s_dd_sigma_clean}
+\end{equation}
+
+The result (\ref{equ:s_dd_sigma_clean}) can be interpreted geometrically as the spline's acceleration without the part along the spline times the factor imposed by the reparametrization (\ref{equ:s_d_sigma_cont_2}).
 
 \end{document}
