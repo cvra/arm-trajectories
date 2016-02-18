@@ -41,24 +41,24 @@ class SplineTest(unittest.TestCase):
 
 class SplineTrajectoryTest(unittest.TestCase):
     def test_direciton_at_point(self):
-        p1 = np.array([-1, -1])
-        p2 = np.array([0, 0])
-        p3 = np.array([1, -1])
+        p1 = [-1, -1]
+        p2 = [0, 0]
+        p3 = [1, -1]
         expected_dir = np.array([1, 0])
         computed_dir = spline.SplineTrajectory.direction_at_point(p1, p2, p3)
 
         npt.assert_almost_equal(expected_dir, computed_dir)
 
     def test_spline_segments(self):
-        p1 = np.array([0, 0])
-        p2 = np.array([21, 42])
-        p3 = np.array([88, 88])
+        p1 = [0, 0]
+        p2 = [21, 42]
+        p3 = [88, 88]
 
         pts = [p1, p2, p3]
 
-        p1_dir = p2 - p1
+        p1_dir = np.array(p2) - np.array(p1)
         p2_dir = spline.SplineTrajectory.direction_at_point(p1, p2, p3)
-        p3_dir = p3 - p2
+        p3_dir = np.array(p3) - np.array(p2)
 
         trajectory = spline.SplineTrajectory(pts)
 

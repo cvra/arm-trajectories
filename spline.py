@@ -88,10 +88,10 @@ class SplineTrajectoryPoint():
 class SplineTrajectory():
     def __init__(self, points, start_dir=None, end_dir=None, roundness=0.1):
         if start_dir is None:
-            start_dir = points[1] - points[0]
+            start_dir = np.array(points[1]) - np.array(points[0])
 
         if end_dir is None:
-            end_dir = points[-1] - points[-2]
+            end_dir = np.array(points[-1]) - np.array(points[-2])
 
         directions = [self.direction_at_point(*pts) for pts
                       in zip(points, points[1:], points[2:])]
@@ -104,8 +104,10 @@ class SplineTrajectory():
 
     @staticmethod
     def direction_at_point(point_before, point, point_after):
-        v1 = point - point_before
-        v2 = point_after - point
+        ''' Spline derivative boundary condition at original trajectory points.
+            (Weighted average of the two segment vectors.) '''
+        v1 = np.array(point) - np.array(point_before)
+        v2 = np.array(point_after) - np.array(point)
 
         v1_norm = np.linalg.norm(v1)
         v2_norm = np.linalg.norm(v2)
