@@ -143,5 +143,5 @@ class SplineTrajectory():
 
     def get_sample_points(self, resolution):
         traj_length = sum([s.spline_length for s in self.splines])
-        n = round(traj_length / resolution)
+        n = round(traj_length / resolution) + 1
         return [self.sample_at_distance(d) for d in np.linspace(0, traj_length, n)]

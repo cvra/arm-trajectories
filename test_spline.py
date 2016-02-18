@@ -83,3 +83,32 @@ class SplineTrajectoryTest(unittest.TestCase):
         npt.assert_almost_equal(normalize(p2_dir), normalize(trajectory.splines[1].spline_dot(0)))
         npt.assert_almost_equal(p3, trajectory.splines[1].spline(1))
         npt.assert_almost_equal(normalize(p3_dir), normalize(trajectory.splines[1].spline_dot(1)))
+
+    def test_sample_at_distance(self):
+        p1 = [0, 0]
+        p2 = [2, 0]
+        p3 = [4, 0]
+
+        pts = [p1, p2, p3]
+
+        trajectory = spline.SplineTrajectory(pts)
+
+        sample = trajectory.sample_at_distance(1)
+
+        npt.assert_almost_equal([1, 0], sample.position)
+
+    def test_get_sample_points(self):
+        p1 = [0, 0]
+        p2 = [2, 0]
+        p3 = [4, 0]
+
+        pts = [p1, p2, p3]
+
+        trajectory = spline.SplineTrajectory(pts)
+
+        sample_points = trajectory.get_sample_points(0.5)
+        print(sample_points)
+
+        self.assertEqual(9, len(sample_points))
+        npt.assert_almost_equal([1, 0], sample_points[2].position)
+        npt.assert_almost_equal([4, 0], sample_points[8].position)
