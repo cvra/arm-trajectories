@@ -65,6 +65,9 @@ class SplineTrajectorySegment():
     def spline_dot(self, t):
         return [s(t) for s in self._spline_dot]
 
+    def spline_dot_dot(self, t):
+        return [s(t) for s in self._spline_dot_dot]
+
     def section_length(self, a, b):
         ''' Evaluates the length of the spline from a to b. '''
         return quad(lambda t: np.linalg.norm(self.spline_dot(t)), a, b)[0]
@@ -72,14 +75,26 @@ class SplineTrajectorySegment():
     def parametrization_at_distance(self, s):
         return newton(lambda t: self.section_length(0, t) - s, 0.5)
 
+    def centripetal_acceleration(self, t):
+        velocity = np.array(self.spline_dot(t))
+        velocity_normalized = velocity / np.linalg.norm(self.spline_dot(t))
+        acceleration = np.array(self.spline_dot_dot(t))
+        acc_projected_on_vel = np.vdot(velocity_normalized, acceleration)
+        acc_projected_on_vel *= velocity_normalized
+        centripetal_acceleration = acceleration - acc_projected_on_vel
+        centripetal_acceleration /= np.linalg.norm(self.spline_dot_dot(t))
+        return centripetal_acceleration
+
 
 class SplineTrajectoryPoint():
     def __init__(self, spline, distance):
+        ''' spline is an object of SplineTrajectorySegment '''
         self.spline = spline
         self.distance = distance
         self.parametrization = spline.parametrization_at_distance(distance)
         self.position = self.spline.spline(self.parametrization)
         self.direction = self.spline.spline_dot(self.parametrization)
+        self.centripetal_acceleration = self.spline.centripetal_acceleration(self.parametrization)
 
     def __repr__(self):
         return str(self.position)

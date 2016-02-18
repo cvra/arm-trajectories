@@ -38,6 +38,19 @@ class SplineTest(unittest.TestCase):
         length = trajectory.section_length(0, r)
         self.assertAlmostEqual(trajectory.spline_length / 3, length)
 
+    def test_centripetal_acceleration_straight_line(self):
+        trajectory = spline.SplineTrajectorySegment([0, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0])
+        point = spline.SplineTrajectoryPoint(trajectory, 0)
+        npt.assert_almost_equal([0, 0, 0], point.centripetal_acceleration)
+
+    def test_centripetal_acceleration_curve(self):
+        trajectory = spline.SplineTrajectorySegment([0, 0, 0], [1, 1, 0], [1, 0, 0], [0, 1, 0])
+        point = spline.SplineTrajectoryPoint(trajectory, 0)
+        self.assertAlmostEqual(0, point.centripetal_acceleration[0])
+        self.assertLess(0, point.centripetal_acceleration[1])
+        self.assertAlmostEqual(0, point.centripetal_acceleration[2])
+
+
 
 class SplineTrajectoryTest(unittest.TestCase):
     def test_direciton_at_point(self):
