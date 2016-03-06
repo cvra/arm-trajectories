@@ -110,11 +110,53 @@ class TestResampleInTime(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_time_for_distance(self):
+        distance = 0.5
+        velocity = 0
+        acceleration = 1
+
+        self.assertAlmostEqual(1, trajectory.time_for_distance(distance, velocity, acceleration))
+
+    def test_time_for_distance_decceleration(self):
+        distance = 0.5
+        velocity = 1
+        acceleration = -1
+
+        self.assertAlmostEqual(1, trajectory.time_for_distance(distance, velocity, acceleration))
+
+
+    def test_time_for_distance_without_accelreation(self):
+        distance = 1
+        velocity = 1
+        acceleration = 0
+
+        self.assertAlmostEqual(1, trajectory.time_for_distance(distance, velocity, acceleration))
+
+    def test_list_of_sums(self):
+        l = [1, 2, 3]
+        self.assertEqual([0, 1, 3, 6], trajectory.list_of_sums(l))
+
     def test_two_point_trajectory(self):
         sampling_distance = 1/2
         velocities = [0, 1]
         accelerations = [1, 0]
         sampling_time = 1
 
-        self.assertEqual([[0, 0, 1], [0.5, 1, 0]],
-                trajectory.resample_in_time(sampling_distance, velocities, accelerations, sampling_time))
+        self.assertEqual([(0, 0, 1), (0.5, 1, 0)],
+                         trajectory.resample_in_time(sampling_distance,
+                                                     velocities,
+                                                     accelerations,
+                                                     sampling_time))
+
+    def test_ramp_trajectory(self):
+        sampling_distance = 1/2
+        velocities =    [0, 1, 1, 1, 1, 1, 0]
+        accelerations = [1, 0, 0, 0, 0, -1, 0]
+        sampling_time = 1
+
+        resampled_points = [(0, 0, 1), (0.5, 1, 0), (1.5, 1, 0), (2.5, 1, -1), (3, 0, 0)]
+        self.assertEqual(resampled_points,
+                         trajectory.resample_in_time(sampling_distance,
+                                                     velocities,
+                                                     accelerations,
+                                                     sampling_time))

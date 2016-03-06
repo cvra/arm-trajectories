@@ -141,70 +141,67 @@ def generate_velocity_profile(points,
 
     return velocity_limits, acceleration
 
+def time_for_distance(distance, v, a):
+    if a != 0:
+        return (np.sqrt(v**2 + 2 * distance * a) - v) / a
+    else:
+        return distance / v
+
+def list_of_sums(l):
+    sums = [0]
+    accumulator = 0
+
+    for i in range(len(l)):
+        accumulator += l[i]
+        sums.append(accumulator)
+    return sums
+
 def resample_in_time(sampling_distance, velocities, accelerations, sampling_time):
     """ naive implementation with not always the correct feed-forward velocity
         and acceleration.
     """
 
-    def next_trajectory_point_position(trajectory_point, sampling_time):
-        delta_distance = trajectory_point[1] * sampling_time \
-                         + 0.5 * trajectory_point[2] * sampling_time**2
-        return trajectory_point[0] + delta_distance
+    def integrate_position(pos, vel, acc, delta_t):
+        delta_distance = vel * delta_t + 0.5 * acc * delta_t**2
+        return pos + delta_distance
 
-    def next_trajectory_point_velocity(trajectory_point, sampling_time):
-        return trajectory_point[1] + trajectory_point[2] * sampling_time
+    def integrate_velocity(vel, acc, delta_t):
+        return vel + acc * delta_t
 
-    def time_for_distance(distance, v, a):
-        if a != 0:
-            return (np.sqrt(v**2 + 2 * distance * a) - v) / a
-        else:
-            return distance / v
 
     positions = np.arange(0, len(velocities) * sampling_distance, sampling_distance)
-    trajectory_points = [(0, velocities[0], accelerations[0])]
+    resampled_points = []
 
-    i = 0
-    while i < (len(positions) - 1):   # len(positions) - 1?
-        while next_trajectory_point_position(trajectory_points[-1], sampling_time) \
-              < positions[i+1] \
-              and next_trajectory_point_velocity(trajectory_points[-1], sampling_time) \
-              > 0:
-            position = next_trajectory_point_position(trajectory_points[-1], sampling_time)
-            velocity = next_trajectory_point_velocity(trajectory_points[-1], sampling_time)
-            acceleration = accelerations[i]
-            trajectory_points.append((position, velocity, acceleration))
+    delta_times = [time_for_distance(sampling_distance, v, a)
+                    for v, a in zip(velocities[0:-1], accelerations)]
 
-        # point within delta_t
-        if i < len(positions) - 2:
-            distance_to_point = positions[i+1] - trajectory_points[-1][0]
-            time_to_point = time_for_distance(distance_to_point,
-                                              trajectory_points[-1][1],
-                                              trajectory_points[-1][2])
+    times = list_of_sums(delta_times)
 
-            time_left = sampling_time - time_to_point
+    nb_resampled_pts = int(round(times[-1] / sampling_time)) + 1 # add one for the first point
 
-            offset = 1
-            total_distance = distance_to_point
-            while True:
-                total_distance += velocities[i+offset] * time_left \
-                                  + 0.5 * accelerations[i+offset] * time_left**2
-                if trajectory_points[-1][0] + total_distance < positions[i+offset+1]:
-                    break
-                else:
-                    time_left -= time_for_distance(sampling_distance,
-                                                   velocities[i+offset],
-                                                   accelerations[i+offset])
-                    offset += 1
+    distance_sampled_index = 0
 
-            position = trajectory_points[-1][0] + total_distance
-            velocity = velocities[i+offset] + accelerations[i+offset] * time_left
-            acceleration = accelerations[i+offset]
+    for resampled_index in range(nb_resampled_pts - 1): # remove one for the last point
+        while (distance_sampled_index + 1 < len(times) and
+               resampled_index * sampling_time >= times[distance_sampled_index+1]):
+            distance_sampled_index += 1
 
-            # correct previous acceleration
+        # distance_sampled_index points to the point before the point at resampled_index
+        delta_t = resampled_index * sampling_time - times[distance_sampled_index]
+        resampled_pos = integrate_position(positions[distance_sampled_index],
+                                           velocities[distance_sampled_index],
+                                           accelerations[distance_sampled_index],
+                                           delta_t)
+        resampled_vel = integrate_velocity(velocities[distance_sampled_index],
+                                           accelerations[distance_sampled_index],
+                                           delta_t)
+        resampled_points.append((resampled_pos,
+                                resampled_vel,
+                                accelerations[distance_sampled_index]))
 
-            trajectory_points.append((position, velocity, acceleration))
-            i += offset
-        else:
-            break
+    # append the last point
+    resampled_points.append((positions[-1],
+                            velocities[-1],
+                            accelerations[-1]))
 
-    return trajectory_points
+    return resampled_points
