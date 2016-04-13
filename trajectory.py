@@ -25,9 +25,9 @@ def compute_trajectory(spline_trajectory,
 
     trajectory_points = resample_in_time(resolution, vel, acc, sampling_time)
 
-    # evaluate spline at each point to get position, direction, and centripetal acceleration
+    dynamic_points = project_vel_profile_on_trajectory(spline_trajectory, trajectory_points)
 
-    return trajectory_points
+    return dynamic_points
 
 
 def limit_in_direction(v, limit_max, limit_min=None):
@@ -55,6 +55,8 @@ def max_acceleration_along_spline(point, speed, acc_limits, sampling_distance):
     max_acceleration = np.linalg.norm(limit_in_direction(direction,
                                       limits_translated[0],
                                       limits_translated[1]))
+    """ Don't accelerate if the actuator are at their limit in the direction of
+        the centripetal force."""
     if np.vdot(limit_in_direction(point.centripetal_acceleration, acc_limits[0], acc_limits[1])
             - point.centripetal_acceleration
             * velocity_after_distance(speed, sampling_distance, max_acceleration),
@@ -205,3 +207,16 @@ def resample_in_time(sampling_distance, velocities, accelerations, sampling_time
                             accelerations[-1]))
 
     return resampled_points
+
+def project_vel_profile_on_trajectory(trajectory, points):
+    dynamic_points = []
+    for point in points:
+        trajectroy_point = trajectory.sample_at_distance(point[0])
+        position = trajectroy_point.position
+        direction = trajectroy_point.direction / np.linalg.norm(trajectroy_point.direction)
+        velocity = direction * point[1]
+        acceleration = direction * point[2] + trajectroy_point.centripetal_acceleration * point[1]
+
+        dynamic_points.append((position, velocity, acceleration))
+
+    return dynamic_points
