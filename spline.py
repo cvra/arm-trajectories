@@ -82,7 +82,7 @@ class SplineTrajectorySegment():
         acc_projected_on_vel = np.vdot(velocity_normalized, acceleration)
         acc_projected_on_vel *= velocity_normalized
         centripetal_acceleration = acceleration - acc_projected_on_vel
-        centripetal_acceleration /= np.linalg.norm(self.spline_dot_dot(t))
+        centripetal_acceleration /= np.linalg.norm(self.spline_dot(t))
         return centripetal_acceleration
 
 
