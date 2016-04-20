@@ -50,18 +50,22 @@ def max_acceleration_along_spline(point, speed, acc_limits, sampling_distance):
         find longest vector in direction of point.direction within acc_limits
     """
     centripetal_acceleration = np.array(point.centripetal_acceleration * speed)
-    direction = np.array(point.direction)
-    limits_translated = acc_limits - centripetal_acceleration
-    max_acceleration = np.linalg.norm(limit_in_direction(direction,
-                                      limits_translated[0],
-                                      limits_translated[1]))
+
+    if (np.any(centripetal_acceleration < acc_limits[0]) or
+        np.any(centripetal_acceleration > acc_limits[1])):
+        max_centripetal_acc = np.linalg.norm(limit_in_direction(centripetal_acceleration,
+                                                                    acc_limits[0],
+                                                                    acc_limits[1]))
+        max_speed = max_centripetal_acc / np.linalg.norm(point.centripetal_acceleration)
+        max_acceleration = max_speed - speed
+    else:
+        direction = np.array(point.direction)
+        limits_translated = acc_limits - centripetal_acceleration
+        max_acceleration = np.linalg.norm(limit_in_direction(direction,
+                                          limits_translated[0],
+                                          limits_translated[1]))
     """ Don't accelerate if the actuator are at their limit in the direction of
         the centripetal force."""
-    if np.vdot(limit_in_direction(point.centripetal_acceleration, acc_limits[0], acc_limits[1])
-            - point.centripetal_acceleration
-            * velocity_after_distance(speed, sampling_distance, max_acceleration),
-            point.centripetal_acceleration) < 0:
-        max_acceleration = 0
 
     return max_acceleration
 
@@ -109,8 +113,10 @@ def generate_velocity_profile(points,
                                                             velocity_limits[i+1],
                                                             acc_limits,
                                                             sampling_distance)
-
-        if decceleration_vel_limit_to_break_limit > decceleration_limit:
+        if decceleration_limit < 0:
+            velocity_limits[i+1] += decceleration_limit
+            velocity_limits[i] = velocity_limits[i+1]
+        elif decceleration_vel_limit_to_break_limit > decceleration_limit:
             velocity_limits[i] = velocity_after_distance(velocity_limits[i+1],
                                                          sampling_distance,
                                                          decceleration_limit)
@@ -133,6 +139,8 @@ def generate_velocity_profile(points,
                                                             acc_limits,
                                                             sampling_distance)
 
+        if acceleration_limit < 0:
+            pass
         if acceleration_vel_to_break_limit > acceleration_limit:
             velocity_limits[i] = velocity_after_distance(velocity_limits[i-1],
                                                          sampling_distance,
