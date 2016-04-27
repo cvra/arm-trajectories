@@ -36,6 +36,6 @@ def inverse_kinematics(pos, a, b, limits):
         alpha = 2 * np.arctan2(y, x) - alpha
         beta *= -1
         if not inside_limits((alpha, beta), limits):
-            print("impossible")
+            print(pos, "impossible")
 
     return (alpha, beta)
