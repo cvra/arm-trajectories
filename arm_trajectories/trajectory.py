@@ -1,5 +1,5 @@
-from spline import *
-from velocity_profile import generate_velocity_profile
+from arm_trajectories.spline import *
+from arm_trajectories.velocity_profile import generate_velocity_profile
 import numpy as np
 
 def compute_trajectory(spline_trajectory,
