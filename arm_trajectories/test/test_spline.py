@@ -1,4 +1,4 @@
-import spline
+from arm_trajectories import spline
 import unittest
 import numpy.testing as npt
 import numpy as np

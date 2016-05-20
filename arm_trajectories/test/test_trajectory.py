@@ -1,6 +1,6 @@
 import unittest
-import spline
-import trajectory
+from arm_trajectories import spline
+from arm_trajectories import trajectory
 import numpy as np
 import numpy.testing as npt
 
