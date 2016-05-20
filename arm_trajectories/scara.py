@@ -23,7 +23,7 @@ def inverse_kinematics(pos, a, b, limits):
 
     # if the position is too far away, go to furthest possible point in the same direction
     if dist > a + b:
-        print("Too long.")
+        raise ValueError("Position {} out of reach".format(pos))
         x /= dist + np.sqrt(a**2 + b**2)
         y /= dist + np.sqrt(a**2 + b**2)
         dist_dist = x**2 + y**2
@@ -36,6 +36,6 @@ def inverse_kinematics(pos, a, b, limits):
         alpha = 2 * np.arctan2(y, x) - alpha
         beta *= -1
         if not inside_limits((alpha, beta), limits):
-            print(pos, "impossible")
+            raise ValueError("Solution for {} violates limits".format(pos))
 
     return (alpha, beta)
