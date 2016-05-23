@@ -15,6 +15,17 @@ class TestScara(unittest.TestCase):
         self.assertAlmostEqual(pos[1], pos_res[1])
         self.assertAlmostEqual(pos[2], pos_res[2])
 
+    def test_invariant_reverse_elbow(self):
+        a = 2
+        b = 1
+        c = 1
+        pos = [2, 0.5, 0]
+        joints = scara.inverse_kinematics(pos, a, b, c, [[-1, 1], [-2, 2], [-1, 1]], True)
+        pos_res = scara.forward_kinematics(joints, a, b, c)
+        self.assertAlmostEqual(pos[0], pos_res[0])
+        self.assertAlmostEqual(pos[1], pos_res[1])
+        self.assertAlmostEqual(pos[2], pos_res[2])
+
     def test_out_of_reach_exception(self):
         a = 2
         b = 1

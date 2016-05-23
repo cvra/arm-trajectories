@@ -27,7 +27,7 @@ def inside_limits(v, limits):
     return np.all([dim >= lim[0] and dim <= lim[1] for (dim, lim) in zip(v, limits)])
 
 # limits is an array of [min, max]
-def inverse_kinematics(pos, a, b, c, limits):
+def inverse_kinematics(pos, a, b, c, limits, negative_elbow_angle=False):
     x = pos[0]
     y = pos[1]
     z = pos[2]
@@ -43,8 +43,12 @@ def inverse_kinematics(pos, a, b, c, limits):
         dist_dist = x**2 + y**2
         dist = np.sqrt(dist_dist)
 
-    alpha = np.arctan2(y, x) - np.arccos((dist_dist + a**2 - b**2) / (2*a*dist))
-    beta = np.arccos((dist_dist - a**2 - b**2) / (2 * a * b))
+    if negative_elbow_angle:
+        alpha = np.arctan2(y, x) + np.arccos((dist_dist + a**2 - b**2) / (2*a*dist))
+        beta = -np.arccos((dist_dist - a**2 - b**2) / (2 * a * b))
+    else:
+        alpha = np.arctan2(y, x) - np.arccos((dist_dist + a**2 - b**2) / (2*a*dist))
+        beta = np.arccos((dist_dist - a**2 - b**2) / (2 * a * b))
 
     if not inside_limits((alpha, beta, z), limits):
         alpha = 2 * np.arctan2(y, x) - alpha
