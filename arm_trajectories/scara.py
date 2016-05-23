@@ -30,7 +30,7 @@ def inside_limits(v, limits):
 def inverse_kinematics(pos, a, b, c, limits):
     x = pos[0]
     y = pos[1]
-    z = pos[2]/c
+    z = pos[2]
 
     dist_dist = x**2 + y**2
     dist = np.sqrt(dist_dist)
@@ -52,4 +52,4 @@ def inverse_kinematics(pos, a, b, c, limits):
         if not inside_limits((alpha, beta, z), limits):
             raise ValueError("Solution for {} violates limits".format(pos))
 
-    return (alpha, beta, z)
+    return (alpha, beta, z/c)
